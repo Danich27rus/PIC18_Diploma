@@ -39,8 +39,8 @@ look_sin_phase	equ	1f  ;
 sinus_change	equ	20  ;
 AD_potenc_cycle		equ	21  ;
 look_TMR1_16		equ	22  ;
-;		equ	23  ;
-;check_tim	equ	24  ;
+save_state_AMP  equ	23  ;
+save_state_PHA	equ	24  ;
 ;equ ?? 7f
 
 		
@@ -115,11 +115,11 @@ start:
 ;	movlw	0x7b
 ;	movwf	T2CON
 	movlw	0x03	    ;TMR0 in 16 bit mode, internal clock signal, 
-	movwf	T0CON	    ;using prescaler, coeff of prescaler is 16
+	movwf	T0CON	    ;using prescaler, coeff of prescaler is 16       ;TMR0 is used for interrupt sinus generating 
 	movlw	0x00	    ;B0  ;30
-	movwf	T1CON
+	movwf	T1CON							     ;TMR1 is used for interrupt amplitude/phase (not skyscrapers) 
 	movlw	0x00	    ;Prescaler 1, Postscaler 1
-	movwf	T2CON	    ;
+	movwf	T2CON	    ;						     ;TMR2 is used for generating PWM
 	movlw	0xFF
 	movwf	PR2
 	movlw	0xFF
@@ -140,7 +140,6 @@ start:
 	;0x01 = sine shaping with random phase
 	;0x02 = sine shaping with random amp
 	;0x04 = sending "noise" data to change potentiometer value
-	;12.04.2023 add - i don't think its true :)
 	movlw	0x08
 	movwf	look_TMR1   ;Set 8 cycles for 1 second delay
 	movlw	0x40	    ;TODO: Broken timer
@@ -178,7 +177,7 @@ choice:
 	;btfsc	mode, 1
 	;call	loop_sin_amp	    ;Generating sinus with pseudo-random amplitude  (sinus) ;;ready as for 17.05.2023
 	btfsc	mode, 2
-	call	loop_sin_phase	    ;Generating sinus with pseudo-random phase (sinus) (19.04 - has a bug)
+	call	loop_sin_phase	    ;Generating sinus with pseudo-random phase (sinus) ;;ready as for 09.08.2023
 	;btfsc	mode, 3
 	;call	loop_AD		    ;Generating signal with pseudo-random amplitude (discrete, "skyscrapers") ;;ready as for 17.05.2023
 	nop
@@ -238,7 +237,7 @@ sin_amp_change:
 	movwf	TBLPTRH	    ;Placing pointer on ROM
 	bcf	STATUS,0    ;Multiplication by two
 	rlcf	noise1,0    ;for ecluding the adress with odd 
-	movwf	TBLPTRL	    ;number when radinf value in ROM
+	movwf	TBLPTRL	    ;number when reading value in ROM
 	btfsc	STATUS,0    ;
 	incf	TBLPTRH,1   ;
 	movlw	0x00	    ;
@@ -348,7 +347,7 @@ loop_AD:
 	movwf	TBLPTRH	    ;Placing pointer on ROM
 	bcf	STATUS,0    ;Multiplication by two
 	rlcf	noise1,0    ;for ecluding the adress with odd 
-	movwf	TBLPTRL	    ;number when radinf value in ROM
+	movwf	TBLPTRL	    ;number when reading value in ROM
 	btfsc	STATUS,0    ;
 	incf	TBLPTRH,1   ;
 	movlw	0x00
