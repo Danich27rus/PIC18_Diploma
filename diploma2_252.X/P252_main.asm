@@ -60,8 +60,8 @@ save_state_PHA	equ	24  ;
 	goto	set_TMR0
 	bcf	PIR1,0
 	bcf	PIR1,1
-	bsf	mode,1
-	bsf	mode,2
+	bsf	mode,1	    ;mode for generating sinus with pseudo-random amplitude  (sinus)
+	bsf	mode,2	    ;mode for generating sinus with pseudo-random phase (sinus)
 	;movlw	0x90	    ;????????? ???????????????? ???????? ??????? 
 	;movwf	TMR1H	    ;??? ??????????? ??????????? ??????? ????????????
 	;Measuring 8 samples for 
@@ -70,7 +70,7 @@ save_state_PHA	equ	24  ;
 	retfie
 	btg	PORTC, 6
 	bsf	sinus_change,0
-	movlw	0x08
+	movlw	0x3E		;0x08
 	movwf	look_TMR1
 	;Measuring 16 samples for 
 	;making 2 sec delay
@@ -78,7 +78,7 @@ save_state_PHA	equ	24  ;
 	retfie
 	bsf	mode,3
 	bsf	sinus_change,1
-	movlw	0x40		    ;TODO: Broken timer
+	movlw	0x02		    ;TODO: Broken timer
     	movwf	look_TMR1_16
 	;btfss	STATUS,0
 	retfie
@@ -87,7 +87,7 @@ save_state_PHA	equ	24  ;
 
 set_TMR0:
 	bcf	INTCON,2
-	bsf	mode,0
+	bsf	mode,0	    ;mode for generating pseudo-random signal (making)
 	retfie
 
 ;******** Microcontroller configuration ***********
@@ -140,9 +140,9 @@ start:
 	;0x01 = sine shaping with random phase
 	;0x02 = sine shaping with random amp
 	;0x04 = sending "noise" data to change potentiometer value
-	movlw	0x08
+	movlw	0x3E	    ;0x08
 	movwf	look_TMR1   ;Set 8 cycles for 1 second delay
-	movlw	0x40	    ;TODO: Broken timer
+	movlw	0x02	    ;TODO: Broken timer		;0x40
 	movwf	look_TMR1_16;Set 16 cycles for 2 second delay
 	movlw	0x5f	    ;Setting
 	movwf	noise1	    ;start
